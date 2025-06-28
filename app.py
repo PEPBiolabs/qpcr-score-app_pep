@@ -96,7 +96,7 @@ if uploaded_file:
                 "DeltaRn_final": max_delta_rn,
                 "Ruido_baseline": std_baseline,
                 "Derivada_max": slope_log,
-                "Nota": score,
+                "Nota": nota_continua,
                 "Classificacao": classif
             })
 
