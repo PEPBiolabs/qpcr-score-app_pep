@@ -18,6 +18,21 @@ st.set_page_config(page_title="qPCR Score App", layout="wide")
 st.title("qPCR Score App")
 st.markdown("Upload seu arquivo .xlsx com dados da aba 'Amplification Data' exportado do QuantStudio")
 
+with st.expander("📋 Ver critérios de avaliação das curvas"):
+    st.markdown("""
+    **Cada reação recebe uma nota de 0 a 3 com base nos seguintes critérios:**
+
+    - ✅ **ΔRn final > 5000** → amplificação detectável → +1 ponto
+    - ✅ **Ruído no baseline < 500** (desvio padrão dos primeiros 10 ciclos) → +1 ponto
+    - ✅ **Inclinação máxima > 1500** (derivada da curva) → crescimento exponencial → +1 ponto
+
+    **Classificação final:**
+    - `ótima`: 3 pontos
+    - `boa`: 2 pontos
+    - `fraca`: 1 ponto
+    - `falhou`: 0 pontos
+    """)
+
 uploaded_file = st.file_uploader("Escolha o arquivo .xlsx", type="xlsx")
 
 if uploaded_file:
