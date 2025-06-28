@@ -25,6 +25,9 @@ if uploaded_file:
         df_raw = pd.read_excel(uploaded_file, sheet_name="Amplification Data", skiprows=40)
         df_raw.columns = ["Run", "Well", "Cycle", "Sample", "Fluorescencia", "DeltaRn"]
 
+        # Filtrar linhas com DeltaRn nulo ou amostras vazias
+        df_raw = df_raw[df_raw["DeltaRn"].notna() & df_raw["Sample"].notna() & (df_raw["Sample"].astype(str).str.strip() != "")]
+
         avaliacoes = []
 
         for well, grupo in df_raw.groupby("Well"):
