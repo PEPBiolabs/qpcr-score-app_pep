@@ -72,6 +72,7 @@ if uploaded_file:
                 classif = "falhou"
 
             avaliacoes.append({
+                "Arquivo": uploaded_file.name,
                 "Well": well,
                 "Sample": grupo_ordenado["Sample"].iloc[0],
                 "DeltaRn_final": max_delta_rn,
