@@ -20,17 +20,24 @@ st.markdown("Upload seu arquivo .xlsx com dados da aba 'Amplification Data' expo
 
 with st.expander("📋 Ver critérios de avaliação das curvas"):
     st.markdown("""
-    **Cada reação recebe uma nota de 0 a 3 com base nos seguintes critérios:**
+    **Cada reação agora recebe uma nota contínua de 0 a 10 com base nos seguintes critérios ponderados:**
 
-    - ✅ **ΔRn final > 5000** → amplificação detectável → +1 ponto
-    - ✅ **Ruído no baseline < 500** (desvio padrão dos primeiros 10 ciclos) → +1 ponto
-    - ✅ **Inclinação máxima > 1500** (derivada da curva) → crescimento exponencial → +1 ponto
+    - ✅ **ΔRn final** (peso 3): 0 (fraco) → 20000+ (ótimo)
+    - ✅ **Ruído na baseline** (peso 3): 1000 (ruim) → 0 (ideal)
+    - ✅ **Inclinação máxima da curva** (peso 4): 0 → 4000+ (ótimo)
 
-    **Classificação final:**
-    - `ótima`: 3 pontos
-    - `boa`: 2 pontos
-    - `fraca`: 1 ponto
-    - `falhou`: 0 pontos
+    A pontuação final é arredondada para 1 casa decimal, e a classificação qualitativa segue a faixa da nota:
+
+    - `10`: excelente
+    - `9`: muito boa
+    - `8`: boa
+    - `7`: aceitável
+    - `6`: limítrofe
+    - `5`: fraca
+    - `4`: muito fraca
+    - `3`: falha
+    - `2`: ruído
+    - `1`: indetectável
     """)
 
 uploaded_file = st.file_uploader("Escolha o arquivo .xlsx", type="xlsx")
@@ -54,22 +61,33 @@ if uploaded_file:
             std_baseline = np.nanstd(baseline)
             slope_log = np.nanmax(np.gradient(delta_rn))
 
-            score = 0
-            if max_delta_rn > 5000:
-                score += 1
-            if std_baseline < 500:
-                score += 1
-            if slope_log > 1500:
-                score += 1
+            # Normalização dos escores (valores típicos baseados em dados empíricos)
+            score_rn = min(max((max_delta_rn / 20000), 0), 1)
+            score_noise = min(max((1 - std_baseline / 1000), 0), 1)
+            score_slope = min(max((slope_log / 4000), 0), 1)
 
-            if score == 3:
-                classif = "ótima"
-            elif score == 2:
-                classif = "boa"
-            elif score == 1:
-                classif = "fraca"
+            nota_continua = round((score_rn * 3 + score_noise * 3 + score_slope * 4), 1)  # Total 10 pontos
+
+            if nota_continua >= 9:
+                classif = "10 - excelente"
+            elif nota_continua >= 8:
+                classif = "9 - muito boa"
+            elif nota_continua >= 7:
+                classif = "8 - boa"
+            elif nota_continua >= 6:
+                classif = "7 - aceitável"
+            elif nota_continua >= 5:
+                classif = "6 - limítrofe"
+            elif nota_continua >= 4:
+                classif = "5 - fraca"
+            elif nota_continua >= 3:
+                classif = "4 - muito fraca"
+            elif nota_continua >= 2:
+                classif = "3 - falha"
+            elif nota_continua >= 1:
+                classif = "2 - ruído"
             else:
-                classif = "falhou"
+                classif = "1 - indetectável"
 
             avaliacoes.append({
                 "Arquivo": uploaded_file.name,
